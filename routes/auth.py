@@ -20,10 +20,12 @@ def roles_required(*allowed_roles):
         def decorated_function(*args, **kwargs):
             if 'user_id' not in session:
                 return redirect(url_for('auth.login'))
+
             user_role = session.get('role', 'guest')
             if user_role not in allowed_roles:
                 flash("Akses ditolak! Anda tidak memiliki izin untuk mengakses halaman tersebut.", "danger")
-                return redirect(request.referrer or url_for('dashboard.index'))
+                return redirect(url_for('dashboard.index'))
+
             return f(*args, **kwargs)
         return decorated_function
     return decorator
