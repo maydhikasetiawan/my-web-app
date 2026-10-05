@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Tambah Monitor - MPS-ITHub{% endblock %}
+{% block header_title %}Tambah Target Monitor Baru{% endblock %}
+
+{% block content %}
+<div class="form-card" style="max-width: 600px; margin: 0 auto;">
+    <h3 style="color: #38bdf8; margin-bottom: 15px;">🌐 Informasi Target Health Check</h3>
+    <form method="POST">
+        <div class="form-group">
+            <label>Nama Layanan / Host *</label>
+            <input type="text" name="name" class="form-control" required placeholder="Contoh: Server Core Router / Web Portal">
+        </div>
+        <div class="form-group">
+            <label>Target IP Address / Domain *</label>
+            <input type="text" name="target" class="form-control" required placeholder="Contoh: 192.168.1.1 atau mpshub.my.id">
+        </div>
+        <div class="form-group">
+            <label>Metode Pengecekan *</label>
+            <select name="type" class="form-control">
+                <option value="TCP">TCP Port Check (Ping/Port)</option>
+                <option value="HTTP">HTTP/HTTPS Endpoint</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Port (Opsional, khusus TCP)</label>
+            <input type="number" name="port" class="form-control" placeholder="Contoh: 80, 443, 22, 8080 (Default: 80)">
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">+ Simpan & Cek Koneksi</button>
+    </form>
+</div>
+{% endblock %}

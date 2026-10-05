@@ -8,6 +8,7 @@ from routes.tickets import tickets_bp
 from routes.reports import reports_bp
 from routes.users import users_bp # 1. Import Blueprint Users
 from flask import session, redirect, url_for, request, flash
+from routes.uptime import uptime_bp
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'mps-ithub-super-secret-key-2026')
@@ -33,6 +34,8 @@ def check_mandatory_password_change():
         if session.get('must_change_password') and request.endpoint not in ['users.change_password', 'auth.logout', 'static']:
             flash("Demi keamanan, Anda diwajibkan mengganti password setelah di-reset oleh Admin.", "warning")
             return redirect(url_for('users.change_password'))
+
+app.register_blueprint(uptime_bp)
 
 @app.route('/health')
 def health():
