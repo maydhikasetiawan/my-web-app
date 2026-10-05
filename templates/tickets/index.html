@@ -33,7 +33,7 @@
             <th>KATEGORI</th>
             <th>PRIORITAS</th>
             <th>STATUS</th>
-            <th>PELAPOR</th>
+            <th>PELAPOR / DEPARTEMEN</th>
             <th>AKSI</th>
         </tr>
     </thead>
@@ -57,12 +57,14 @@
                 </span>
             </td>
             <td>
-                <!-- Konsistensi Warna Status Baru -->
                 <span class="badge {% if t.status == 'Open' %}badge-orange{% elif t.status == 'In Progress' %}badge-yellow{% elif t.status == 'Resolved' %}badge-green{% else %}badge-red{% endif %}">
                     {{ t.status }}
                 </span>
             </td>
-            <td><strong>{{ t.created_by }}</strong></td>
+            <td>
+                <strong>{{ t.created_by }}</strong>
+                <small style="color:#94a3b8;">({{ t.department or 'IT' }})</small>
+            </td>
             <td>
                 {% if session['role'] == 'admin' %}
                 <a href="{{ url_for('tickets.delete_permanent', ticket_id=t.id) }}" class="btn-danger" style="font-size:11px; font-weight:bold;">Hapus</a>
