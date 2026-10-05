@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}IT Assets - MPS-ITHub{% endblock %}
+{% block header_title %}IT Assets & IPAM Inventory{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <form method="GET" class="filter-bar" style="margin-bottom:0;">
+        <input type="text" name="q" class="filter-input" placeholder="Cari nama, tag, IP, atau lokasi..." value="{{ search_query }}">
+        <button type="submit" class="btn-primary">Cari</button>
+    </form>
+    {% if session['role'] != 'guest' %}
+    <a href="{{ url_for('assets.add') }}" class="btn-primary">+ Tambah Aset Baru</a>
+    {% endif %}
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ASSET TAG</th>
+            <th>NAMA PERANGKAT</th>
+            <th>KATEGORI</th>
+            <th>IP ADDRESS</th>
+            <th>MAC ADDRESS</th>
+            <th>STATUS</th>
+            <th>LOKASI</th>
+            <th>AKSI</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in assets %}
+        <tr>
+            <td><strong>{{ a.asset_tag }}</strong></td>
+            <td>{{ a.name }}</td>
+            <td>{{ a.category }}</td>
+            <td><code>{{ a.ip_address or '-' }}</code></td>
+            <td><code>{{ a.mac_address or '-' }}</code></td>
+            <td>
+                <span class="badge {% if a.status == 'Active' %}badge-active{% elif a.status == 'Under Repair' %}badge-repair{% else %}badge-retired{% endif %}">
+                    {{ a.status }}
+                </span>
+            </td>
+            <td>{{ a.location or '-' }}</td>
+            <td>
+                {% if session['role'] != 'guest' %}
+                <a href="{{ url_for('assets.delete', asset_id=a.id) }}" class="btn-danger" onclick="return confirm('Hapus aset ini?')">Hapus</a>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" style="text-align:center; color:#64748b;">Belum ada data aset terdaftar.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

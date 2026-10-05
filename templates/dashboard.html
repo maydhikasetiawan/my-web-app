@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MPS-ITHub{% endblock %}
+{% block header_title %}Operational Dashboard{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <div class="card">
+        <h4>TOTAL ASSETS (IPAM)</h4>
+        <h2>{{ total_assets }}</h2>
+    </div>
+    <div class="card">
+        <h4>OPEN TICKETS</h4>
+        <h2>0</h2>
+    </div>
+    <div class="card">
+        <h4>SERVICES ONLINE</h4>
+        <h2>100%</h2>
+    </div>
+</div>
+{% endblock %}

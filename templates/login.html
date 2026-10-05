@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MPS Operational IT Hub</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-card { background: #1e293b; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; text-align: center; }
+        .logo-placeholder { width: 70px; height: 70px; margin: 0 auto 15px; background: linear-gradient(135deg, #38bdf8, #10b981); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        h2 { font-size: 22px; color: #38bdf8; margin-bottom: 5px; }
+        p.subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 25px; }
+        .form-group { text-align: left; margin-bottom: 18px; }
+        label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 14px; }
+        input:focus { border-color: #38bdf8; outline: none; }
+        button { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 6px; color: #0f172a; font-weight: bold; font-size: 15px; cursor: pointer; }
+        button:hover { background: #0284c7; color: #fff; }
+        .alert { background: #ef444422; border: 1px solid #ef4444; color: #fca5a5; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; }
+        .demo-info { margin-top: 20px; font-size: 11px; color: #64748b; border-top: 1px solid #334155; padding-top: 15px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-placeholder">🛡️</div>
+        <h2>MPS-ITHub</h2>
+        <p class="subtitle">IT Service Desk & Infrastructure Portal</p>
+
+        {% if error %}
+        <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required placeholder="Masukkan username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required placeholder="Masukkan password">
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+
+        <div class="demo-info">
+            <strong>Default Credentials:</strong><br>
+            • Admin: <code>admin</code> / <code>AdminPass123!</code><br>
+            • Guest: <code>guest</code> / <code>GuestPass123!</code>
+        </div>
+    </div>
+</body>
+</html>
