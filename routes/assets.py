@@ -127,6 +127,23 @@ def edit(asset_id):
 
     return render_template('assets/edit.html', asset=asset, active_page='assets')
 
+@assets_bp.route('/<int:asset_id>')
+@login_required
+def detail(asset_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM assets WHERE id = %s;", (asset_id,))
+    asset = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not asset:
+        return "Asset tidak ditemukan", 404
+
+    asset['age'] = calculate_age(asset['created_at'])
+
+    return render_template('assets/detail.html', asset=asset, active_page='assets')
+
 @assets_bp.route('/delete/<int:asset_id>')
 @login_required
 @write_access_required

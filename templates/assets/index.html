@@ -34,8 +34,16 @@
     <tbody>
         {% for a in assets %}
         <tr>
-            <td><strong>{{ a.asset_tag }}</strong></td>
-            <td>{{ a.name }}</td>
+            <td>
+                <a href="{{ url_for('assets.detail', asset_id=a.id) }}" style="color:#38bdf8; font-weight:bold; text-decoration:none;">
+                    {{ a.asset_tag }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('assets.detail', asset_id=a.id) }}" style="color:#f8fafc; font-weight:600; text-decoration:none;">
+                    {{ a.name }}
+                </a>
+            </td>
             <td>{{ a.category }}</td>
             <td><code>{{ a.ip_address or '-' }}</code></td>
             <td>
