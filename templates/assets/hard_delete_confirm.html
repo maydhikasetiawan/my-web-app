@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus Permanen - {{ asset.asset_tag }}{% endblock %}
+{% block header_title %}Hapus Permanen (Hard Delete){% endblock %}
+
+{% block content %}
+<div class="form-card" style="max-width: 550px; border-color: #ef4444;">
+    <h3 style="color: #ef4444; margin-bottom: 10px;">🚨 Peringatan: Hapus Permanen</h3>
+    <p style="color: #cbd5e1; font-size: 13px; margin-bottom: 20px;">
+        Tindakan ini akan <strong>MENGHAPUS PERMANEN</strong> data aset dari database PostgreSQL. Data yang terhapus permanen tidak dapat dipulihkan kembali!
+    </p>
+
+    {% if error %}
+    <div style="background: #ef444422; border: 1px solid #ef4444; color: #fca5a5; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <!-- Lapis 1: Konfirmasi Nama Perangkat -->
+        <div class="form-group">
+            <label style="color: #f8fafc;">
+                1. Masukkan Nama Perangkat persis untuk konfirmasi:
+                <br><code style="color: #38bdf8; font-size: 14px;">{{ asset.name }}</code>
+            </label>
+            <input type="text" name="confirm_name" class="form-control" required placeholder="Ketik nama perangkat di sini..." autocomplete="off">
+        </div>
+
+        <!-- Lapis 2: Verifikasi Password User -->
+        <div class="form-group">
+            <label style="color: #f8fafc;">2. Masukkan Password Akun Anda (<strong>{{ session['username'] }}</strong>):</label>
+            <input type="password" name="confirm_password" class="form-control" required placeholder="Masukkan password Anda...">
+        </div>
+
+        <div style="margin-top: 25px;">
+            <button type="submit" class="btn-danger" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">Saya Yakin, Hapus Permanen</button>
+            <a href="{{ url_for('assets.deleted_history') }}" style="color: #94a3b8; margin-left: 15px; font-size: 13px; text-decoration: none;">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
