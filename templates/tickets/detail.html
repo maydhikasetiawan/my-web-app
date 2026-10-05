@@ -46,10 +46,10 @@
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="color: #cbd5e1; font-size: 12px;">Ubah Status Tiket:</label>
                 <select name="status" class="form-control" style="max-width: 250px;">
-                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open (Orange)</option>
-                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress (Kuning)</option>
-                    <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved (Hijau - Lock)</option>
-                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed (Merah - Lock)</option>
+                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                 </select>
             </div>
 

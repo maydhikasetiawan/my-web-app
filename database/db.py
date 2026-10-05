@@ -80,6 +80,19 @@ def init_db():
             );
         ''')
 
+        # 5. Tabel Ticket Categories (Modular)
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS ticket_categories (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(50) UNIQUE NOT NULL
+            );
+        ''')
+
+        # Insert Default Categories Jika Belum Ada
+        default_categories = ['Hardware', 'Network', 'Software', 'Server', 'Request']
+        for cat in default_categories:
+            cur.execute("INSERT INTO ticket_categories (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (cat,))
+
         # Default Accounts
         cur.execute("SELECT * FROM users WHERE username = 'admin';")
         if not cur.fetchone():

@@ -18,6 +18,15 @@
     {% endif %}
 </div>
 
+<div style="display:flex; gap:10px;">
+        {% if session['role'] == 'admin' %}
+        <a href="{{ url_for('tickets.manage_categories') }}" style="background:#334155; color:#cbd5e1; padding:8px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">⚙️ Kelola Kategori</a>
+        {% endif %}
+        {% if session['role'] != 'guest' %}
+        <a href="{{ url_for('tickets.add') }}" class="btn-primary">+ Buat Tiket Baru</a>
+        {% endif %}
+</div>
+
 <table class="data-table">
     <thead>
         <tr>
