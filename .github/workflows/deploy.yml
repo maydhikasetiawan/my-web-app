@@ -1,21 +1,13 @@
-name: CI/CD Pipeline - Deploy to AWS EC2
+name: Deploy Application
 
 on:
   push:
     branches:
       - main
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -23,31 +15,20 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract Docker Metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,prefix=
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/${{ github.repository }}:latest
 
   deploy-to-ec2:
     needs: build-and-push
     runs-on: ubuntu-latest
-
     steps:
       - name: Deploy Container via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -56,23 +37,18 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-          docker pull ghcr.io/${{ github.repository }}:latest
-
-          docker stop my-web-app || true
-          docker rm my-web-app || true
-
-          # Jalankan container dengan kredensial PostgreSQL & volume log Nginx
-          docker run -d \
-            --name my-web-app \
-            --restart always \
-            -p 5000:5000 \
-            -v /var/log/nginx:/var/log/nginx:ro \
-            -e DB_HOST=postgres-server \
-            -e DB_NAME=db_monitoring \
-            -e DB_USER=admin_server \
-            -e DB_PASS=PasswordSuperAman123 \
-            ghcr.io/${{ github.repository }}:latest
-
-          # Hubungkan container ke network Docker Compose tempat postgres-server berada
-          docker network connect app-monitoring_default my-web-app || true
-          docker restart my-web-app
+            docker pull ghcr.io/${{ github.repository }}:latest
+            docker stop my-web-app || true
+            docker rm my-web-app || true
+            docker run -d \
+              --name my-web-app \
+              --restart always \
+              -p 5000:5000 \
+              -v /var/log/nginx:/var/log/nginx:ro \
+              -e DB_HOST=postgres-server \
+              -e DB_NAME=db_monitoring \
+              -e DB_USER=admin_server \
+              -e DB_PASS=PasswordSuperAman123 \
+              ghcr.io/${{ github.repository }}:latest
+            docker network connect app-monitoring_default my-web-app || true
+            docker restart my-web-app
