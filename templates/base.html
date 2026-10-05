@@ -46,7 +46,7 @@
         <ul class="nav-menu">
             <li class="nav-item"><a href="{{ url_for('dashboard.index') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">📊 Dashboard</a></li>
             <li class="nav-item"><a href="{{ url_for('assets.index') }}" class="nav-link {% if active_page == 'assets' %}active{% endif %}">🖥️ IT Assets (IPAM)</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">🎫 Service Desk</a></li>
+            <li class="nav-item"><a href="{{ url_for('tickets.index') }}" class="nav-link {% if active_page == 'tickets' %}active{% endif %}">🎫 Service Desk</a></li>
             <li class="nav-item"><a href="#" class="nav-link">🌐 Uptime Monitor</a></li>
             {% if session['role'] == 'admin' %}
             <li class="nav-item"><a href="#" class="nav-link">👥 User Management</a></li>

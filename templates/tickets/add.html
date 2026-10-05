@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Buat Tiket - MPS-ITHub{% endblock %}
+{% block header_title %}Buat Tiket Gangguan Baru{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Judul Tiket / Ringkasan Masalah *</label>
+            <input type="text" name="title" class="form-control" required placeholder="Contoh: Koneksi internet server down / Printer error">
+        </div>
+        <div class="form-group">
+            <label>Kategori Masalah *</label>
+            <select name="category" class="form-control">
+                <option value="Hardware">Hardware / Perangkat Rusak</option>
+                <option value="Network">Jaringan / Network / Wi-Fi</option>
+                <option value="Software">Software / Aplikasi</option>
+                <option value="Server">Server / Infrastructure</option>
+                <option value="Request">Permintaan Layanan IT (Request)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tingkat Prioritas *</label>
+            <select name="priority" class="form-control">
+                <option value="Low">Low (Rendah)</option>
+                <option value="Medium" selected>Medium (Sedang)</option>
+                <option value="High">High (Tinggi)</option>
+                <option value="Critical">Critical (Sangat Mendesak)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Deskripsi Detail Masalah *</label>
+            <textarea name="description" class="form-control" rows="5" required placeholder="Jelaskan kronologi atau gejala gangguan secara rinci..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Kirim Tiket</button>
+        <a href="{{ url_for('tickets.index') }}" style="color: #94a3b8; margin-left: 15px; font-size: 13px; text-decoration: none;">Batal</a>
+    </form>
+</div>
+{% endblock %}
