@@ -24,8 +24,14 @@
     <div style="background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid #334155; margin-bottom: 20px;">
         <h4 style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">DESKRIPSI MASALAH / LAPORAN</h4>
         <p style="font-size: 13px; color: #f8fafc; white-space: pre-line;">{{ ticket.description }}</p>
-        <div style="margin-top: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 10px;">
-            Dilaporkan oleh: <strong>{{ ticket.created_by }}</strong> pada <strong>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') if ticket.created_at else '-' }}</strong>
+        <div class="detail-item">
+            <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">PELAPOR & DEPARTEMEN</label>
+            <div style="font-size: 15px; font-weight: bold; color: #f8fafc;">
+                👤 {{ ticket.created_by }}
+                <span style="color: #38bdf8; font-size: 13px; font-weight: normal; margin-left: 6px;">
+                    ({{ ticket.department or 'IT' }})
+                </span>
+            </div>
         </div>
     </div>
 
