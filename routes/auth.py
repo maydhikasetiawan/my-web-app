@@ -13,14 +13,20 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def write_access_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if session.get('role') == 'guest':
-            flash("Akses ditolak! Akun Guest hanya memiliki izin Read-Only.", "danger")
-            return redirect(request.referrer or url_for('dashboard.index'))
-        return f(*args, **kwargs)
-    return decorated_function
+# Decorator Pembantu Proteksi Role
+def roles_required(*allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_id' not in session:
+                return redirect(url_for('auth.login'))
+            user_role = session.get('role', 'guest')
+            if user_role not in allowed_roles:
+                flash("Akses ditolak! Anda tidak memiliki izin untuk mengakses halaman tersebut.", "danger")
+                return redirect(request.referrer or url_for('dashboard.index'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -44,6 +50,7 @@ def login():
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['role'] = user['role']
+                session['department'] = user.get('department', 'IT')
                 return redirect(url_for('dashboard.index'))
             else:
                 error = "Username atau password salah!"

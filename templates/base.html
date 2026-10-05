@@ -50,12 +50,28 @@
         <div class="brand">🛡️ MPS-ITHub</div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="{{ url_for('dashboard.index') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">📊 Dashboard</a></li>
+
+            <!-- Modul IPAM: Hanya untuk Admin, IT, dan Guest -->
+            {% if session['role'] in ['admin', 'it', 'guest'] %}
             <li class="nav-item"><a href="{{ url_for('assets.index') }}" class="nav-link {% if active_page == 'assets' %}active{% endif %}">🖥️ IT Assets (IPAM)</a></li>
+            {% endif %}
+
+            <!-- Modul Service Desk: Untuk Semua Role -->
             <li class="nav-item"><a href="{{ url_for('tickets.index') }}" class="nav-link {% if active_page == 'tickets' %}active{% endif %}">🎫 Service Desk</a></li>
-            <li class="nav-item"><a href="{{ url_for('reports.index') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">📈 Reports Center</a></li>
+
+            <!-- Modul Uptime Monitor: Untuk Admin, IT, dan Guest -->
+            {% if session['role'] in ['admin', 'it', 'guest'] %}
             <li class="nav-item"><a href="#" class="nav-link">🌐 Uptime Monitor</a></li>
+            {% endif %}
+
+            <!-- Modul Reports Center: Hanya untuk Admin dan IT -->
+            {% if session['role'] in ['admin', 'it'] %}
+            <li class="nav-item"><a href="{{ url_for('reports.index') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">📈 Reports Center</a></li>
+            {% endif %}
+
+            <!-- Modul User Management: Khusus Super Admin -->
             {% if session['role'] == 'admin' %}
-            <li class="nav-item"><a href="#" class="nav-link">👥 User Management</a></li>
+            <li class="nav-item"><a href="{{ url_for('users.index') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">👥 User Management</a></li>
             {% endif %}
         </ul>
     </div>
