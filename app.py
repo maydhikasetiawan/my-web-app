@@ -7,6 +7,7 @@ from routes.assets import assets_bp
 from routes.tickets import tickets_bp
 from routes.reports import reports_bp
 from routes.users import users_bp # 1. Import Blueprint Users
+from flask import session, redirect, url_for, request, flash
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'mps-ithub-super-secret-key-2026')
@@ -25,13 +26,6 @@ def ensure_db_initialized():
         init_db()
         app._got_first_request = True
 
-@app.route('/health')
-def health():
-    return {"status": "healthy"}, 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
 @app.before_request
 def check_mandatory_password_change():
     if session.get('user_id'):
@@ -39,3 +33,10 @@ def check_mandatory_password_change():
         if session.get('must_change_password') and request.endpoint not in ['users.change_password', 'auth.logout', 'static']:
             flash("Demi keamanan, Anda diwajibkan mengganti password setelah di-reset oleh Admin.", "warning")
             return redirect(url_for('users.change_password'))
+
+@app.route('/health')
+def health():
+    return {"status": "healthy"}, 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
