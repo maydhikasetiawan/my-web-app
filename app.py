@@ -6,6 +6,7 @@ from routes.dashboard import dashboard_bp
 from routes.assets import assets_bp
 from routes.tickets import tickets_bp
 from routes.reports import reports_bp
+from routes.users import users_bp # 1. Import Blueprint Users
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'mps-ithub-super-secret-key-2026')
@@ -16,6 +17,7 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(assets_bp)
 app.register_blueprint(tickets_bp)
 app.register_blueprint(reports_bp)
+app.register_blueprint(users_bp) # 2. Register Blueprint Users
 
 @app.before_request
 def ensure_db_initialized():

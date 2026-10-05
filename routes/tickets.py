@@ -46,8 +46,43 @@ def index():
 @login_required
 @roles_required('admin', 'it', 'user') # Admin, IT, dan User bisa membuat tiket
 def add():
-    # ... (Logika add tiket tetap sama) ...
-    pass
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        category = request.form.get('category')
+        priority = request.form.get('priority')
+        description = request.form.get('description')
+        ticket_code = generate_ticket_code()
+
+        # Ambil username dan departemen pelapor secara otomatis dari Session
+        created_by = session.get('username')
+        user_dept = session.get('department', 'IT')
+
+        try:
+            cur.execute("""
+                INSERT INTO tickets (ticket_code, title, category, priority, status, description, created_by, department)
+                VALUES (%s, %s, %s, %s, 'Open', %s, %s, %s);
+            """, (ticket_code, title, category, priority, description, created_by, user_dept))
+            conn.commit()
+            cur.close()
+            conn.close()
+            flash(f"Tiket {ticket_code} berhasil dibuat!", "success")
+            return redirect(url_for('tickets.index'))
+        except Exception as e:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return f"Error creating ticket: {e}"
+
+    # Ambil Kategori Dinamis dari Database
+    cur.execute("SELECT * FROM ticket_categories ORDER BY name ASC;")
+    categories = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return render_template('tickets/add.html', categories=categories, active_page='tickets')
 
 @tickets_bp.route('/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required

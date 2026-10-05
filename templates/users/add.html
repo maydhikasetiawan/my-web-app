@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Tambah User - MPS-ITHub{% endblock %}
+{% block header_title %}Tambah User Baru{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Username *</label>
+            <input type="text" name="username" class="form-control" required placeholder="Contoh: ahmed.hrd">
+        </div>
+        <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" class="form-control" required placeholder="Contoh: ahmed@mpshub.my.id">
+        </div>
+        <div class="form-group">
+            <label>Password *</label>
+            <input type="password" name="password" class="form-control" required placeholder="Masukkan password awal...">
+        </div>
+        <div class="form-group">
+            <label>Departemen *</label>
+            <select name="department" class="form-control">
+                {% for d in departments %}
+                <option value="{{ d.name }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Hak Akses (Role RBAC Matrix) *</label>
+            <select name="role" class="form-control">
+                <option value="user">User (Regular End-User / Self-Service Ticket)</option>
+                <option value="it">IT Support (Teknisi / Staff Operasional)</option>
+                <option value="admin">Admin (Super Admin Full Access)</option>
+                <option value="guest">Guest (Auditor / Read-Only Viewer)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">Simpan User</button>
+        <a href="{{ url_for('users.index') }}" style="color: #94a3b8; margin-left: 15px; font-size: 13px; text-decoration: none;">Batal</a>
+    </form>
+</div>
+{% endblock %}
