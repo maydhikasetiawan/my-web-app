@@ -7,7 +7,7 @@ def home():
     return jsonify({
         "status": "online",
         "message": "Hello from CI/CD Pipeline!",
-        "version": "1.0.0"
+        "version": "1.0.1"
     })
 
 if __name__ == '__main__':
