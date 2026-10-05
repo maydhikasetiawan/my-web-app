@@ -61,7 +61,7 @@
 
             <!-- Modul Uptime Monitor: Untuk Admin, IT, dan Guest -->
             {% if session['role'] in ['admin', 'it', 'guest'] %}
-            <li class="nav-item"><a href="#" class="nav-link">🌐 Uptime Monitor</a></li>
+            <li class="nav-item"><a href="{{ url_for('uptime.index') }}" class="nav-link {% if active_page == 'uptime' %}active{% endif %}">🌐 Uptime Monitor</a></li>
             {% endif %}
 
             <!-- Modul Reports Center: Hanya untuk Admin dan IT -->
@@ -78,22 +78,21 @@
     <div class="main-content">
         <div class="header">
             <h2>{% block header_title %}Operational Dashboard{% endblock %}</h2>
-            <div>
-                Selamat datang, <strong>{{ session['username'] }}</strong>
-                <span class="user-badge {% if session['role'] == 'guest' %}role-guest{% endif %}">
-                    [{{ session['role'] | upper }}]
-                </span>
-            </div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="color:#cbd5e1; font-size:13px;">👤 <strong>{{ session['username'] }}</strong> ({{ session['role'] | upper }})</span>
-                <a href="{{ url_for('users.change_password') }}" style="color:#38bdf8; font-size:12px; text-decoration:none; background:#1e293b; padding:6px 10px; border-radius:4px;">🔑 Ganti Password</a>
+                <span style="color:#cbd5e1; font-size:13px;">
+                    👤 <strong>{{ session['username'] }}</strong>
+                    <span class="badge {% if session['role'] == 'admin' %}badge-red{% elif session['role'] == 'it' %}badge-yellow{% elif session['role'] == 'user' %}badge-green{% else %}badge-repair{% endif %}">
+                        [{{ session['role'] | upper }}]
+                    </span>
+                </span>
+                <a href="{{ url_for('users.change_password') }}" style="color:#38bdf8; font-size:12px; text-decoration:none; background:#1e293b; padding:6px 10px; border-radius:4px; font-weight:bold;">🔑 Ganti Password</a>
                 <a href="{{ url_for('auth.logout') }}" class="btn-danger" style="font-size:12px; padding:6px 10px;">Logout</a>
             </div>
         </div>
 
         {% if session['role'] == 'guest' %}
         <div style="background: #f59e0b22; border: 1px solid #f59e0b; color: #fbbf24; padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 12px;">
-            ℹ️ Anda login sebagai <strong>Guest (Read-Only)</strong>. Anda dapat melihat data tetapi tidak memiliki izin untuk menambah/mengubah data.
+            ℹ️️ Anda login sebagai <strong>Guest (Read-Only)</strong>. Anda dapat melihat data tetapi tidak memiliki izin untuk menambah/mengubah data.
         </div>
         {% endif %}
 

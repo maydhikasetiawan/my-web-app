@@ -27,6 +27,16 @@
     {% endif %}
 </div>
 
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h3 style="color: #38bdf8;">Daftar Layanan & Server</h3>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="{{ url_for('uptime.check_all') }}" style="background: #334155; color: #cbd5e1; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;">🔄 Check All Services</a>
+        {% if session['role'] in ['admin', 'it'] %}
+        <a href="{{ url_for('uptime.add') }}" class="btn-primary">+ Tambah Target Monitor</a>
+        {% endif %}
+    </div>
+</div>
+
 <table class="data-table">
     <thead>
         <tr>

@@ -114,3 +114,28 @@ def delete(monitor_id):
     conn.close()
     flash("Target monitor berhasil dihapus.", "danger")
     return redirect(url_for('uptime.index'))
+
+# --- TRIGGER CHECK SEMUA SERVICE SEKALIGUS ---
+@uptime_bp.route('/check-all')
+@login_required
+@roles_required('admin', 'it', 'guest')
+def check_all():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM monitors;")
+    monitors_list = cur.fetchall()
+
+    for m in monitors_list:
+        status, latency = check_target_health(m['target'], m['type'], m['port'])
+        cur.execute("""
+            UPDATE monitors
+            SET status = %s, latency = %s, last_check = CURRENT_TIMESTAMP
+            WHERE id = %s;
+        """, (status, latency, m['id']))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    flash("Seluruh target service berhasil dipindai ulang!", "success")
+    return redirect(url_for('uptime.index'))
