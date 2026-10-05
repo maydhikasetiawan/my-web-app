@@ -11,8 +11,8 @@
 <div class="form-card" style="max-width: 800px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px;">
         <div>
-            <!-- Perbaikan Warna Status Dinamis -->
-            <span class="badge {% if ticket.status == 'Open' %}badge-repair{% elif ticket.status == 'In Progress' %}badge-active{% elif ticket.status == 'Resolved' %}badge-active{% else %}badge-retired{% endif %}" style="font-size: 12px; padding: 4px 10px;">
+            <!-- Konsistensi Warna Status -->
+            <span class="badge {% if ticket.status == 'Open' %}badge-orange{% elif ticket.status == 'In Progress' %}badge-yellow{% elif ticket.status == 'Resolved' %}badge-green{% else %}badge-red{% endif %}" style="font-size: 12px; padding: 4px 10px;">
                 {{ ticket.status | upper }}
             </span>
             <h2 style="color: #38bdf8; margin-top: 8px;">{{ ticket.title }}</h2>
@@ -29,32 +29,39 @@
         </div>
     </div>
 
-    <!-- Form & Laporan Penyelesaian (Resolution Section) -->
+    <!-- Form & Laporan Penyelesaian -->
     <div style="background: #0f172a; padding: 20px; border-radius: 6px; border: 1px solid #334155; margin-bottom: 20px;">
         <h4 style="color: #10b981; font-size: 13px; margin-bottom: 15px;">✅ LAPORAN PENYELESAIAN (RESOLUTION NOTE)</h4>
 
-        {% if session['role'] != 'guest' %}
+        {% if ticket.status in ['Resolved', 'Closed'] %}
+        <!-- Tampilan Locked/Read-Only Setelah Tiket Selesai -->
+        <div style="background: #10b98115; border: 1px solid #10b981; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #34d399;">
+            🔒 Tiket ini telah berstatus <strong>{{ ticket.status }}</strong> dan telah dikunci. Data penyelesaian tidak dapat diubah lagi.
+        </div>
+        <p style="font-size: 13px; color: #cbd5e1; white-space: pre-line;">{{ ticket.resolution_note or 'Tidak ada catatan penyelesaian.' }}</p>
+
+        {% elif session['role'] != 'guest' %}
+        <!-- Form Pengisian Hanya Buka Jika Status Masih Open / In Progress -->
         <form method="POST">
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="color: #cbd5e1; font-size: 12px;">Ubah Status Tiket:</label>
                 <select name="status" class="form-control" style="max-width: 250px;">
-                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
-                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                    <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
+                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open (Orange)</option>
+                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress (Kuning)</option>
+                    <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved (Hijau - Lock)</option>
+                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed (Merah - Lock)</option>
                 </select>
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="color: #cbd5e1; font-size: 12px;">Catatan Penanganan / Solusi Perbaikan:</label>
-                <textarea name="resolution_note" class="form-control" rows="4" placeholder="Tuliskan tindakan perbaikan yang telah dilakukan untuk menyelesaikan masalah ini...">{{ ticket.resolution_note or '' }}</textarea>
+                <textarea name="resolution_note" class="form-control" rows="4" placeholder="Tuliskan tindakan perbaikan yang telah dilakukan...">{{ ticket.resolution_note or '' }}</textarea>
             </div>
 
-            <button type="submit" class="btn-primary">Simpan Laporan & Status</button>
+            <button type="submit" class="btn-primary">Simpan Laporan & Update Status</button>
         </form>
         {% else %}
-        <!-- Tampilan untuk Role Guest (Read-Only) -->
-        <p style="font-size: 13px; color: #cbd5e1; white-space: pre-line;">{{ ticket.resolution_note or 'Belum ada catatan penyelesaian.' }}</p>
+        <p style="font-size: 13px; color: #cbd5e1;">{{ ticket.resolution_note or 'Belum ada catatan penyelesaian.' }}</p>
         {% endif %}
 
         {% if ticket.resolved_by %}

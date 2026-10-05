@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import check_password_hash
 from routes.auth import login_required, write_access_required
 from database.db import get_db_connection
 from datetime import datetime
@@ -24,7 +25,7 @@ def index():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    query = "SELECT * FROM tickets WHERE 1=1"
+    query = "SELECT * FROM tickets WHERE is_deleted = FALSE"
     params = []
 
     if status_filter:
@@ -82,7 +83,22 @@ def detail(ticket_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
+    cur.execute("SELECT * FROM tickets WHERE id = %s AND is_deleted = FALSE;", (ticket_id,))
+    ticket = cur.fetchone()
+
+    if not ticket:
+        cur.close()
+        conn.close()
+        return "Tiket tidak ditemukan", 404
+
+    # Proteksi: Jika tiket sudah Resolved atau Closed, tidak bisa diedit lagi
     if request.method == 'POST' and session.get('role') != 'guest':
+        if ticket['status'] in ['Resolved', 'Closed']:
+            flash("Tiket ini telah selesai/ditutup dan tidak dapat diubah lagi!", "danger")
+            cur.close()
+            conn.close()
+            return redirect(url_for('tickets.detail', ticket_id=ticket_id))
+
         new_status = request.form.get('status')
         resolution_note = request.form.get('resolution_note', '').strip()
         user_now = session.get('username')
@@ -105,14 +121,54 @@ def detail(ticket_id):
             """, (new_status, resolution_note, ticket_id))
 
         conn.commit()
+        cur.close()
+        conn.close()
         flash("Status dan laporan penyelesaian tiket berhasil diperbarui!", "success")
+        return redirect(url_for('tickets.detail', ticket_id=ticket_id))
+
+    cur.close()
+    conn.close()
+    return render_template('tickets/detail.html', ticket=ticket, active_page='tickets')
+
+# --- HAPUS PERMANEN KHUSUS ADMIN BER-PASSWORD ---
+@tickets_bp.route('/delete-permanent/<int:ticket_id>', methods=['GET', 'POST'])
+@login_required
+def delete_permanent(ticket_id):
+    # Proteksi Khusus Role Admin
+    if session.get('role') != 'admin':
+        flash("Akses ditolak! Hanya Super Admin yang berhak menghapus tiket secara permanen.", "danger")
+        return redirect(url_for('tickets.index'))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
 
     cur.execute("SELECT * FROM tickets WHERE id = %s;", (ticket_id,))
     ticket = cur.fetchone()
-    cur.close()
-    conn.close()
 
     if not ticket:
+        cur.close()
+        conn.close()
         return "Tiket tidak ditemukan", 404
 
-    return render_template('tickets/detail.html', ticket=ticket, active_page='tickets')
+    error = None
+    if request.method == 'POST':
+        input_password = request.form.get('confirm_password', '')
+        user_id = session.get('user_id')
+
+        # Verifikasi password Admin
+        cur.execute("SELECT password_hash FROM users WHERE id = %s;", (user_id,))
+        admin_data = cur.fetchone()
+
+        if not admin_data or not check_password_hash(admin_data['password_hash'], input_password):
+            error = "Password Admin salah! Penghapusan permanen dibatalkan."
+        else:
+            cur.execute("DELETE FROM tickets WHERE id = %s;", (ticket_id,))
+            conn.commit()
+            cur.close()
+            conn.close()
+            flash(f"Tiket {ticket['ticket_code']} berhasil dihapus permanen.", "danger")
+            return redirect(url_for('tickets.index'))
+
+    cur.close()
+    conn.close()
+    return render_template('tickets/delete_permanent.html', ticket=ticket, error=error, active_page='tickets')

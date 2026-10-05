@@ -10,6 +10,7 @@
         <a href="{{ url_for('tickets.index', status='Open') }}" class="btn-primary" style="background:{% if status_filter == 'Open' %}#38bdf8{% else %}#334155{% endif %}; color:{% if status_filter == 'Open' %}#0f172a{% else %}#cbd5e1{% endif %};">Open</a>
         <a href="{{ url_for('tickets.index', status='In Progress') }}" class="btn-primary" style="background:{% if status_filter == 'In Progress' %}#38bdf8{% else %}#334155{% endif %}; color:{% if status_filter == 'In Progress' %}#0f172a{% else %}#cbd5e1{% endif %};">In Progress</a>
         <a href="{{ url_for('tickets.index', status='Resolved') }}" class="btn-primary" style="background:{% if status_filter == 'Resolved' %}#38bdf8{% else %}#334155{% endif %}; color:{% if status_filter == 'Resolved' %}#0f172a{% else %}#cbd5e1{% endif %};">Resolved</a>
+        <a href="{{ url_for('tickets.index', status='Closed') }}" class="btn-primary" style="background:{% if status_filter == 'Closed' %}#38bdf8{% else %}#334155{% endif %}; color:{% if status_filter == 'Closed' %}#0f172a{% else %}#cbd5e1{% endif %};">Closed</a>
     </div>
 
     {% if session['role'] != 'guest' %}
@@ -26,7 +27,7 @@
             <th>PRIORITAS</th>
             <th>STATUS</th>
             <th>PELAPOR</th>
-            <th>TANGGAL</th>
+            <th>AKSI</th>
         </tr>
     </thead>
     <tbody>
@@ -44,17 +45,24 @@
             </td>
             <td>{{ t.category }}</td>
             <td>
-                <span class="badge {% if t.priority == 'Critical' or t.priority == 'High' %}badge-retired{% elif t.priority == 'Medium' %}badge-repair{% else %}badge-active{% endif %}">
+                <span class="badge {% if t.priority in ['Critical', 'High'] %}badge-red{% elif t.priority == 'Medium' %}badge-yellow{% else %}badge-green{% endif %}">
                     {{ t.priority }}
                 </span>
             </td>
             <td>
-                <span class="badge {% if t.status == 'Open' %}badge-repair{% elif t.status == 'In Progress' %}badge-active{% else %}badge-retired{% endif %}">
+                <!-- Konsistensi Warna Status Baru -->
+                <span class="badge {% if t.status == 'Open' %}badge-orange{% elif t.status == 'In Progress' %}badge-yellow{% elif t.status == 'Resolved' %}badge-green{% else %}badge-red{% endif %}">
                     {{ t.status }}
                 </span>
             </td>
             <td><strong>{{ t.created_by }}</strong></td>
-            <td><small style="color:#94a3b8;">{{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else '-' }}</small></td>
+            <td>
+                {% if session['role'] == 'admin' %}
+                <a href="{{ url_for('tickets.delete_permanent', ticket_id=t.id) }}" class="btn-danger" style="font-size:11px; font-weight:bold;">Hapus</a>
+                {% else %}
+                -
+                {% endif %}
+            </td>
         </tr>
         {% else %}
         <tr>
