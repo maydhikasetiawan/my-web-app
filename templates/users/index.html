@@ -29,21 +29,22 @@
             <td><code>#{{ u.id }}</code></td>
             <td><strong>{{ u.username }}</strong></td>
             <td>{{ u.email }}</td>
-            <td><span class="badge {% if u.role == 'admin' %}badge-retired{% elif u.role == 'it' %}badge-active{% else %}badge-repair{% endif %}">[{{ u.role | upper }}]</span></td>
+            <td>
+                <span class="badge {% if u.role == 'admin' %}badge-red{% elif u.role == 'it' %}badge-yellow{% elif u.role == 'user' %}badge-green{% else %}badge-repair{% endif %}">
+                    [{{ u.role | upper }}]
+                </span>
+            </td>
             <td><strong style="color: #38bdf8;">{{ u.department or 'IT' }}</strong></td>
             <td><small style="color:#94a3b8;">{{ u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '-' }}</small></td>
             <td>
-                <a href="{{ url_for('users.edit', user_id=u.id) }}" style="color:#38bdf8; font-weight:bold; margin-right:8px; text-decoration:none;">Edit</a>
-                {% if u.id != session['user_id'] %}
-                <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" onclick="return confirm('Hapus user ini?')">Hapus</a>
-                {% endif %}
-            </td>
-            <td>
-                {% if u.id != session['user_id'] %}
-                <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" onclick="return confirm('Hapus user ini?')">Hapus</a>
-                {% else %}
-                <small style="color:#64748b;">(Akun Anda)</small>
-                {% endif %}
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <a href="{{ url_for('users.edit', user_id=u.id) }}" style="background: #0284c7; color: #fff; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold;">Edit</a>
+                    {% if u.id != session['user_id'] %}
+                    <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" style="font-size: 12px; padding: 4px 10px;" onclick="return confirm('Hapus user ini?')">Hapus</a>
+                    {% else %}
+                    <small style="color:#64748b;">(Akun Anda)</small>
+                    {% endif %}
+                </div>
             </td>
         </tr>
         {% else %}

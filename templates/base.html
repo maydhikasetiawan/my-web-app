@@ -83,7 +83,6 @@
                 <span class="user-badge {% if session['role'] == 'guest' %}role-guest{% endif %}">
                     [{{ session['role'] | upper }}]
                 </span>
-                <a href="{{ url_for('auth.logout') }}" class="btn-logout" style="margin-left: 15px;">Logout</a>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
                 <span style="color:#cbd5e1; font-size:13px;">👤 <strong>{{ session['username'] }}</strong> ({{ session['role'] | upper }})</span>
