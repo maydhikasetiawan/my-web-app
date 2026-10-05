@@ -84,9 +84,28 @@ def detail(ticket_id):
 
     if request.method == 'POST' and session.get('role') != 'guest':
         new_status = request.form.get('status')
-        cur.execute("UPDATE tickets SET status = %s WHERE id = %s;", (new_status, ticket_id))
+        resolution_note = request.form.get('resolution_note', '').strip()
+        user_now = session.get('username')
+
+        if new_status in ['Resolved', 'Closed']:
+            cur.execute("""
+                UPDATE tickets
+                SET status = %s,
+                    resolution_note = %s,
+                    resolved_by = %s,
+                    resolved_at = CURRENT_TIMESTAMP
+                WHERE id = %s;
+            """, (new_status, resolution_note, user_now, ticket_id))
+        else:
+            cur.execute("""
+                UPDATE tickets
+                SET status = %s,
+                    resolution_note = %s
+                WHERE id = %s;
+            """, (new_status, resolution_note, ticket_id))
+
         conn.commit()
-        flash("Status tiket berhasil diperbarui!", "success")
+        flash("Status dan laporan penyelesaian tiket berhasil diperbarui!", "success")
 
     cur.execute("SELECT * FROM tickets WHERE id = %s;", (ticket_id,))
     ticket = cur.fetchone()

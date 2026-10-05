@@ -9,33 +9,59 @@
 </div>
 
 <div class="form-card" style="max-width: 800px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px;">
         <div>
-            <span class="badge badge-repair">{{ ticket.status }}</span>
-            <h2 style="color: #38bdf8; margin-top: 5px;">{{ ticket.title }}</h2>
-            <p style="color: #94a3b8; font-size: 13px;">Kode Tiket: <strong>{{ ticket.ticket_code }}</strong> | Kategori: <strong>{{ ticket.category }}</strong></p>
+            <!-- Perbaikan Warna Status Dinamis -->
+            <span class="badge {% if ticket.status == 'Open' %}badge-repair{% elif ticket.status == 'In Progress' %}badge-active{% elif ticket.status == 'Resolved' %}badge-active{% else %}badge-retired{% endif %}" style="font-size: 12px; padding: 4px 10px;">
+                {{ ticket.status | upper }}
+            </span>
+            <h2 style="color: #38bdf8; margin-top: 8px;">{{ ticket.title }}</h2>
+            <p style="color: #94a3b8; font-size: 13px;">Kode Tiket: <strong>{{ ticket.ticket_code }}</strong> | Kategori: <strong>{{ ticket.category }}</strong> | Prioritas: <strong>{{ ticket.priority }}</strong></p>
         </div>
-        {% if session['role'] != 'guest' %}
-        <form method="POST" style="display:flex; gap:8px; align-items:center;">
-            <select name="status" class="form-control" style="padding: 6px; font-size: 12px;">
-                <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
-                <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
-            </select>
-            <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 12px;">Update Status</button>
-        </form>
-        {% endif %}
     </div>
 
+    <!-- Deskripsi Masalah Awal -->
     <div style="background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid #334155; margin-bottom: 20px;">
-        <h4 style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">DESKRIPSI MASALAH</h4>
+        <h4 style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">DESKRIPSI MASALAH / LAPORAN</h4>
         <p style="font-size: 13px; color: #f8fafc; white-space: pre-line;">{{ ticket.description }}</p>
+        <div style="margin-top: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 10px;">
+            Dilaporkan oleh: <strong>{{ ticket.created_by }}</strong> pada <strong>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') if ticket.created_at else '-' }}</strong>
+        </div>
     </div>
 
-    <div style="border-top: 1px solid #334155; padding-top: 15px; font-size: 12px; color: #64748b; display: flex; justify-content: space-between;">
-        <span>Dibuat oleh: <strong>{{ ticket.created_by }}</strong></span>
-        <span>Waktu Laporan: <strong>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') if ticket.created_at else '-' }}</strong></span>
+    <!-- Form & Laporan Penyelesaian (Resolution Section) -->
+    <div style="background: #0f172a; padding: 20px; border-radius: 6px; border: 1px solid #334155; margin-bottom: 20px;">
+        <h4 style="color: #10b981; font-size: 13px; margin-bottom: 15px;">✅ LAPORAN PENYELESAIAN (RESOLUTION NOTE)</h4>
+
+        {% if session['role'] != 'guest' %}
+        <form method="POST">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="color: #cbd5e1; font-size: 12px;">Ubah Status Tiket:</label>
+                <select name="status" class="form-control" style="max-width: 250px;">
+                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="color: #cbd5e1; font-size: 12px;">Catatan Penanganan / Solusi Perbaikan:</label>
+                <textarea name="resolution_note" class="form-control" rows="4" placeholder="Tuliskan tindakan perbaikan yang telah dilakukan untuk menyelesaikan masalah ini...">{{ ticket.resolution_note or '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Simpan Laporan & Status</button>
+        </form>
+        {% else %}
+        <!-- Tampilan untuk Role Guest (Read-Only) -->
+        <p style="font-size: 13px; color: #cbd5e1; white-space: pre-line;">{{ ticket.resolution_note or 'Belum ada catatan penyelesaian.' }}</p>
+        {% endif %}
+
+        {% if ticket.resolved_by %}
+        <div style="margin-top: 15px; font-size: 11px; color: #10b981; border-top: 1px solid #1e293b; padding-top: 10px;">
+            Diselesaikan oleh: <strong>{{ ticket.resolved_by }}</strong> pada <strong>{{ ticket.resolved_at.strftime('%Y-%m-%d %H:%M') if ticket.resolved_at else '-' }}</strong>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
