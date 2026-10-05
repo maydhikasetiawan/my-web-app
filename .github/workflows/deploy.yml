@@ -56,21 +56,23 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Pull image terbaru dari GHCR
-            docker pull ghcr.io/${{ github.repository }}:latest
+          docker pull ghcr.io/${{ github.repository }}:latest
 
-            # Hentikan & hapus container lama jika ada
-            docker stop my-web-app || true
-            docker rm my-web-app || true
+          docker stop my-web-app || true
+          docker rm my-web-app || true
 
-            # Jalankan container baru di port 5000
-            docker run -d \
-              --name my-web-app \
-              --restart always \
-              -p 5000:5000 \
-              -v /var/log/nginx:/var/log/nginx:ro \
-              -e DB_HOST=postgres-server \
-              -e DB_NAME=postgres \
-              -e DB_USER=postgres \
-              -e DB_PASS=postgres \
-              ghcr.io/${{ github.repository }}:latest
+          # Jalankan container dengan kredensial PostgreSQL & volume log Nginx
+          docker run -d \
+            --name my-web-app \
+            --restart always \
+            -p 5000:5000 \
+            -v /var/log/nginx:/var/log/nginx:ro \
+            -e DB_HOST=postgres-server \
+            -e DB_NAME=db_monitoring \
+            -e DB_USER=admin_server \
+            -e DB_PASS=PasswordSuperAman123 \
+            ghcr.io/${{ github.repository }}:latest
+
+          # Hubungkan container ke network Docker Compose tempat postgres-server berada
+          docker network connect app-monitoring_default my-web-app || true
+          docker restart my-web-app
