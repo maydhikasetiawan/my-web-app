@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - MPS-ITHub{% endblock %}
+{% block header_title %}User Management (Admin){% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <div>
+        <a href="{{ url_for('users.departments') }}" style="background:#334155; color:#cbd5e1; padding:8px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">🏢 Kelola Departemen</a>
+    </div>
+    <a href="{{ url_for('users.add') }}" class="btn-primary">+ Tambah User Baru</a>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>USERNAME</th>
+            <th>EMAIL</th>
+            <th>ROLE</th>
+            <th>DEPARTEMEN</th>
+            <th>TANGGAL DAFTAR</th>
+            <th>AKSI</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td><code>#{{ u.id }}</code></td>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge {% if u.role == 'admin' %}badge-retired{% elif u.role == 'it' %}badge-active{% else %}badge-repair{% endif %}">[{{ u.role | upper }}]</span></td>
+            <td><strong style="color: #38bdf8;">{{ u.department or 'IT' }}</strong></td>
+            <td><small style="color:#94a3b8;">{{ u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '-' }}</small></td>
+            <td>
+                {% if u.id != session['user_id'] %}
+                <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" onclick="return confirm('Hapus user ini?')">Hapus</a>
+                {% else %}
+                <small style="color:#64748b;">(Akun Anda)</small>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" style="text-align:center; color:#64748b;">Belum ada user terdaftar.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
