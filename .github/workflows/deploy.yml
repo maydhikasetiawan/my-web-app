@@ -48,7 +48,6 @@ jobs:
               --name my-web-app \
               --restart always \
               -p 5000:5000 \
-              -v /var/log/nginx:/var/log/nginx:ro \
               -e DB_HOST=postgres-server \
               -e DB_NAME=db_monitoring \
               -e DB_USER=admin_server \
