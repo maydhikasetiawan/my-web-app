@@ -27,8 +27,16 @@
     <tbody>
         {% for a in assets %}
         <tr>
-            <td><strong>{{ a.asset_tag }}</strong></td>
-            <td><strong>{{ a.name }}</strong></td>
+            <td>
+                <a href="{{ url_for('assets.deleted_detail', asset_id=a.id) }}" style="color:#38bdf8; font-weight:bold; text-decoration:none;">
+                    {{ a.asset_tag }}
+                </a>
+            </td>
+            <td>
+                <a href="{{ url_for('assets.deleted_detail', asset_id=a.id) }}" style="color:#f8fafc; font-weight:600; text-decoration:none;">
+                    {{ a.name }}
+                </a>
+            </td>
             <td>{{ a.category }}</td>
             <td style="color: #fca5a5;"><em>{{ a.delete_reason or 'Tidak ada alasan' }}</em></td>
             <td><small style="color:#94a3b8;">{{ a.deleted_at.strftime('%Y-%m-%d %H:%M') if a.deleted_at else '-' }}</small></td>

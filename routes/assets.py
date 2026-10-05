@@ -208,6 +208,23 @@ def deleted_history():
 
     return render_template('assets/deleted_history.html', assets=deleted_assets, search_query=search_query, active_page='assets')
 
+# --- DETAIL ASET TERHAPUS ---
+@assets_bp.route('/deleted-detail/<int:asset_id>')
+@login_required
+def deleted_detail(asset_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM assets WHERE id = %s AND is_deleted = TRUE;", (asset_id,))
+    asset = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not asset:
+        return "Asset terhapus tidak ditemukan", 404
+
+    asset['age'] = calculate_age(asset['created_at'])
+    return render_template('assets/deleted_detail.html', asset=asset, active_page='assets')
+
 # --- HARD DELETE (HAPUS PERMANEN BERLAPIS) ---
 @assets_bp.route('/hard-delete/<int:asset_id>', methods=['GET', 'POST'])
 @login_required
