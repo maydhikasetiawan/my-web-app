@@ -60,18 +60,28 @@ def index():
 @roles_required('admin', 'it')
 def add():
     if request.method == 'POST':
-        asset_tag = request.form.get('asset_tag')
-        name = request.form.get('name')
+        asset_tag = request.form.get('asset_tag', '').strip()
+        name = request.form.get('name', '').strip()
         category = request.form.get('category')
-        ip_address = request.form.get('ip_address')
-        mac_address = request.form.get('mac_address')
+        ip_address = request.form.get('ip_address', '').strip()
+        mac_address = request.form.get('mac_address', '').strip()
         status = request.form.get('status')
-        location = request.form.get('location')
-        notes = request.form.get('notes')
+        location = request.form.get('location', '').strip()
+        notes = request.form.get('notes', '').strip()
         user_now = session.get('username')
 
         conn = get_db_connection()
         cur = conn.cursor()
+
+        # VALIDASI: Cek apakah Asset Tag sudah digunakan
+        cur.execute("SELECT id FROM assets WHERE asset_tag = %s;", (asset_tag,))
+        existing_asset = cur.fetchone()
+        if existing_asset:
+            cur.close()
+            conn.close()
+            flash(f"Gagal! Asset Tag '{asset_tag}' sudah terdaftar di sistem. Gunakan Tag lain.", "danger")
+            return render_template('assets/add.html', active_page='assets')
+
         try:
             cur.execute("""
                 INSERT INTO assets (asset_tag, name, category, ip_address, mac_address, status, location, notes, updated_by)
@@ -80,13 +90,14 @@ def add():
             conn.commit()
             cur.close()
             conn.close()
-            flash("Aset berhasil ditambahkan!", "success")
+            flash(f"Aset '{name}' ({asset_tag}) berhasil ditambahkan!", "success")
             return redirect(url_for('assets.index'))
         except Exception as e:
             conn.rollback()
             cur.close()
             conn.close()
-            return f"Error adding asset: {e}"
+            flash(f"Terjadi kesalahan saat menyimpan data: {e}", "danger")
+            return render_template('assets/add.html', active_page='assets')
 
     return render_template('assets/add.html', active_page='assets')
 

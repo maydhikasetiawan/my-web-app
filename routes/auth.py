@@ -53,6 +53,7 @@ def login():
                 session['username'] = user['username']
                 session['role'] = user['role']
                 session['department'] = user.get('department', 'IT') # Simpan Departemen
+                session['must_change_password'] = user.get('must_change_password', False)
                 return redirect(url_for('dashboard.index'))
             else:
                 error = "Username atau password salah!"

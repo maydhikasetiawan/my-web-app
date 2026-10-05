@@ -31,3 +31,11 @@ def health():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+@app.before_request
+def check_mandatory_password_change():
+    if session.get('user_id'):
+        # Jalankan pengecekan jika user wajib ganti password
+        if session.get('must_change_password') and request.endpoint not in ['users.change_password', 'auth.logout', 'static']:
+            flash("Demi keamanan, Anda diwajibkan mengganti password setelah di-reset oleh Admin.", "warning")
+            return redirect(url_for('users.change_password'))

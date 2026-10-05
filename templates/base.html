@@ -85,6 +85,11 @@
                 </span>
                 <a href="{{ url_for('auth.logout') }}" class="btn-logout" style="margin-left: 15px;">Logout</a>
             </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="color:#cbd5e1; font-size:13px;">👤 <strong>{{ session['username'] }}</strong> ({{ session['role'] | upper }})</span>
+                <a href="{{ url_for('users.change_password') }}" style="color:#38bdf8; font-size:12px; text-decoration:none; background:#1e293b; padding:6px 10px; border-radius:4px;">🔑 Ganti Password</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn-danger" style="font-size:12px; padding:6px 10px;">Logout</a>
+            </div>
         </div>
 
         {% if session['role'] == 'guest' %}

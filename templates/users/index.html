@@ -33,6 +33,12 @@
             <td><strong style="color: #38bdf8;">{{ u.department or 'IT' }}</strong></td>
             <td><small style="color:#94a3b8;">{{ u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '-' }}</small></td>
             <td>
+                <a href="{{ url_for('users.edit', user_id=u.id) }}" style="color:#38bdf8; font-weight:bold; margin-right:8px; text-decoration:none;">Edit</a>
+                {% if u.id != session['user_id'] %}
+                <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" onclick="return confirm('Hapus user ini?')">Hapus</a>
+                {% endif %}
+            </td>
+            <td>
                 {% if u.id != session['user_id'] %}
                 <a href="{{ url_for('users.delete', user_id=u.id) }}" class="btn-danger" onclick="return confirm('Hapus user ini?')">Hapus</a>
                 {% else %}
