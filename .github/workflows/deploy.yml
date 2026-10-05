@@ -68,4 +68,9 @@ jobs:
               --name my-web-app \
               --restart always \
               -p 5000:5000 \
+              -v /var/log/nginx:/var/log/nginx:ro \
+              -e DB_HOST=postgres-server \
+              -e DB_NAME=postgres \
+              -e DB_USER=postgres \
+              -e DB_PASS=postgres \
               ghcr.io/${{ github.repository }}:latest
