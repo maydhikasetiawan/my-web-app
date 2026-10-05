@@ -1,10 +1,10 @@
 import os
-import re
 import psycopg2
 from flask import Flask, jsonify, render_template_string
 
 app = Flask(__name__)
 
+# Mengambil konfigurasi database dari Environment Variables
 DB_HOST = os.getenv('DB_HOST', 'postgres-server')
 DB_NAME = os.getenv('DB_NAME', 'postgres')
 DB_USER = os.getenv('DB_USER', 'postgres')
@@ -13,13 +13,18 @@ LOG_FILE_PATH = '/var/log/nginx/access.log'
 
 def get_db_connection():
     return psycopg2.connect(
-        host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS, port=5432
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS,
+        port=5432
     )
 
 def init_db():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
+        # Membuat tabel jika belum ada
         cur.execute('''
             CREATE TABLE IF NOT EXISTS nginx_logs (
                 id SERIAL PRIMARY KEY,
@@ -36,51 +41,70 @@ def init_db():
         cur.close()
         conn.close()
     except Exception as e:
-        print(f"Error init DB: {e}")
+        print(f"Error initializing DB: {e}")
 
+# Jalankan inisialisasi tabel saat aplikasi start
 init_db()
 
 def parse_and_sync_logs():
     if not os.path.exists(LOG_FILE_PATH):
         return
 
-    # Regex untuk membaca format Nginx Access Log
-    log_pattern = re.compile(
-        r'(?P<ip>[\d\.]+) - - \[(?P<time>[^\]]+)\] "(?P<method>\w+) (?P<endpoint>[^\s]+) [^"]+" (?P<status>\d+) \d+ "[^"]*" "(?P<agent>[^"]*)"'
-    )
-
     try:
         conn = get_db_connection()
         cur = conn.cursor()
 
         with open(LOG_FILE_PATH, 'r') as f:
-            for line in f.readlines()[-100:]:  # Baca 100 baris log terakhir
-                match = log_pattern.match(line)
-                if match:
-                    data = match.groupdict()
-                    # Cek apakah log ini sudah ada agar tidak duplikat
-                    cur.execute(
-                        "SELECT id FROM nginx_logs WHERE ip_address=%s AND timestamp=%s AND endpoint=%s",
-                        (data['ip'], data['time'], data['endpoint'])
-                    )
-                    if not cur.fetchone():
+            lines = f.readlines()[-200:]  # Ambil 200 baris log Nginx terakhir
+
+            for line in lines:
+                parts = line.split(' ')
+                if len(parts) >= 7:
+                    ip = parts[0]
+
+                    # Abaikan log internal / healthcheck
+                    if ip in ['127.0.0.1', '::1'] or ip.startswith('172.'):
+                        continue
+
+                    try:
+                        timestamp = line[line.find("[")+1:line.find("]")]
+                        request_part = line[line.find('"')+1:]
+                        req_subparts = request_part.split('"')[0].split(' ')
+
+                        method = req_subparts[0] if len(req_subparts) > 0 else 'GET'
+                        endpoint = req_subparts[1] if len(req_subparts) > 1 else '/'
+                        status_code = int(parts[8]) if len(parts) > 8 and parts[8].isdigit() else 200
+
+                        # Mencegah data duplikat masuk ke PostgreSQL
                         cur.execute(
-                            "INSERT INTO nginx_logs (ip_address, timestamp, method, endpoint, status_code, user_agent) VALUES (%s, %s, %s, %s, %s, %s)",
-                            (data['ip'], data['time'], data['method'], data['endpoint'], int(data['status']), data['agent'])
+                            "SELECT id FROM nginx_logs WHERE ip_address=%s AND timestamp=%s AND endpoint=%s",
+                            (ip, timestamp, endpoint)
                         )
+                        if not cur.fetchone():
+                            # Eksekusi simpan data ke PostgreSQL
+                            cur.execute(
+                                "INSERT INTO nginx_logs (ip_address, timestamp, method, endpoint, status_code, user_agent) VALUES (%s, %s, %s, %s, %s, %s)",
+                                (ip, timestamp, method, endpoint, status_code, "Nginx Log")
+                            )
+                    except Exception:
+                        continue
+
         conn.commit()
         cur.close()
         conn.close()
     except Exception as e:
-        print(f"Error sync logs: {e}")
+        print(f"Error syncing logs to DB: {e}")
 
 @app.route('/')
 def dashboard():
+    # Lakukan ekstraksi & simpan log Nginx ke PostgreSQL setiap halaman ini diakses
     parse_and_sync_logs()
+
     try:
         conn = get_db_connection()
         cur = conn.cursor()
 
+        # Mengambil statistik dari PostgreSQL
         cur.execute("SELECT COUNT(*) FROM nginx_logs;")
         total_logs = cur.fetchone()[0]
 
@@ -92,10 +116,9 @@ def dashboard():
 
         cur.close()
         conn.close()
-    except Exception as e:
+    except Exception:
         total_logs, unique_ips, recent_visits = 0, 0, []
 
-    # Tampilan HTML Dashboard Sederhana
     html_template = """
     <!DOCTYPE html>
     <html>
